@@ -124,15 +124,58 @@
 </head>
 <body class="bg-akij-darkbg text-slate-100 flex h-screen overflow-hidden antialiased">
 
-    <div id="loading-overlay" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-3xl flex flex-col items-center justify-center transition-all duration-700">
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/20 rounded-full blur-[100px] animate-pulse"></div>
-        <div class="relative w-20 h-20 mb-8 flex items-center justify-center">
-            <div class="absolute inset-0 border-4 border-slate-700/50 rounded-xl transform rotate-45 shadow-lg"></div>
-            <div class="absolute inset-0 border-4 border-indigo-400 border-t-transparent border-l-transparent rounded-xl animate-[spin_2s_linear_infinite] transform rotate-45 shadow-neon-indigo"></div>
-            <svg class="w-8 h-8 text-indigo-300 animate-pulse relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+    <div id="loading-overlay" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-2xl flex flex-col items-center justify-center transition-all duration-700">
+
+        <!-- Soft ambient glow -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-600/15 rounded-full blur-[90px] pointer-events-none"></div>
+
+        <!-- Icon + rings -->
+        <div class="relative flex items-center justify-center mb-8" style="width:88px;height:88px">
+
+            <!-- Outer slow-spin ring -->
+            <svg class="absolute inset-0 w-full h-full" viewBox="0 0 88 88" fill="none" style="animation:spin 3s linear infinite">
+                <circle cx="44" cy="44" r="40" stroke="#334155" stroke-width="2"/>
+                <circle cx="44" cy="44" r="40" stroke="url(#ringA)" stroke-width="2.5"
+                        stroke-linecap="round" stroke-dasharray="60 192"/>
+                <defs>
+                    <linearGradient id="ringA" x1="0" y1="0" x2="88" y2="88" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="#818cf8"/>
+                        <stop offset="100%" stop-color="#a78bfa"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+
+            <!-- Inner fast counter-spin ring -->
+            <svg class="absolute inset-0 w-full h-full" viewBox="0 0 88 88" fill="none"
+                 style="width:64px;height:64px;top:12px;left:12px;animation:spin 1.8s linear infinite reverse">
+                <circle cx="32" cy="32" r="28" stroke="#1e293b" stroke-width="1.5"/>
+                <circle cx="32" cy="32" r="28" stroke="#6366f1" stroke-width="1.5"
+                        stroke-linecap="round" stroke-dasharray="20 158" opacity="0.6"/>
+            </svg>
+
+            <!-- Centre icon: bar chart -->
+            <div class="relative z-10 w-10 h-10 flex items-center justify-center rounded-xl bg-slate-800 border border-indigo-500/30 shadow-lg shadow-indigo-500/20">
+                <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <rect x="3"  y="12" width="4" height="9"  rx="1" fill="currentColor" stroke="none" opacity="0.6"/>
+                    <rect x="10" y="7"  width="4" height="14" rx="1" fill="currentColor" stroke="none" opacity="0.8"/>
+                    <rect x="17" y="3"  width="4" height="18" rx="1" fill="currentColor" stroke="none"/>
+                </svg>
+            </div>
         </div>
-        <h2 class="text-2xl font-extrabold text-white tracking-widest drop-shadow-md bg-gradient-to-r from-white via-indigo-100 to-indigo-300 bg-clip-text text-transparent uppercase">Initializing Data</h2>
-        <p class="text-sm text-indigo-300/80 mt-2 font-medium tracking-wider uppercase">Connecting to AKIJ Operational Excellence Engine...</p>
+
+        <!-- Text -->
+        <h2 class="text-xl font-extrabold tracking-[0.2em] uppercase bg-gradient-to-r from-white via-indigo-200 to-indigo-400 bg-clip-text text-transparent">
+            INITIALIZING OPERATIONS ENGINE
+        </h2>
+        <p class="text-xs text-slate-500 mt-2 font-medium tracking-widest uppercase">Connecting to Database...</p>
+
+        <!-- Progress dots -->
+        <div class="flex gap-1.5 mt-5">
+            <div class="w-1.5 h-1.5 rounded-full bg-indigo-400" style="animation:pulse 1.2s ease-in-out infinite 0ms"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-indigo-400" style="animation:pulse 1.2s ease-in-out infinite 200ms"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-indigo-400" style="animation:pulse 1.2s ease-in-out infinite 400ms"></div>
+        </div>
+
     </div>
 
     <main class="flex-1 overflow-y-auto relative scroll-smooth w-full">
@@ -144,7 +187,7 @@
                     <svg class="w-6 h-6 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-extrabold tracking-tight uppercase text-white drop-shadow-sm">AKIJ LIGHT ENGINEERING - DAILY OPERATIONS MEETING</h1>
+                    <h1 class="text-2xl font-extrabold tracking-tight uppercase text-white drop-shadow-sm">AKIJ LIGHT ENGINEERING -  Daily Operations Meeting</h1>
                     <div class="flex items-center text-indigo-400 mt-1">
                         <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         <p class="text-[11px] font-bold tracking-wider uppercase" id="current-date">Loading date...</p>
@@ -944,6 +987,9 @@
 
                 const tgt = cleanNumber(tgtVal);
                 const act = cleanNumber(actVal);
+
+                // Skip rows where both Target and Actual are zero — nothing to display
+                if (tgt === 0 && act === 0) return;
 
                 let achivNum = parseFloat(achivVal.replace(/[^0-9.-]+/g,"")) || 0;
                 if (!achivVal && tgt > 0) achivNum = (act / tgt) * 100;
