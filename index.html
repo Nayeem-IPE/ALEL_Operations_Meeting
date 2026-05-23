@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,30 +41,84 @@
     </script>
 
     <style>
+        /* ===== SMOOTH SCROLLING — GLOBAL ===== */
+        html { scroll-behavior: smooth; }
+
+        /* Explicit smooth scroll on overflow containers — no expensive attribute selectors */
+        .overflow-y-auto,
+        .overflow-x-auto,
+        .overflow-auto { scroll-behavior: smooth; }
+
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #818cf8; }
-        
+
         .fade-out { opacity: 0; pointer-events: none; transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
-        
-        /* Modern UI Smooth Animations */
-        .animate-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .animate-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); border-color: #475569; }
-        
-        .list-item-entry { animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both; }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        /*
+         * PERF FIX: `transition: all` recalculates every CSS property on every frame.
+         * Replaced with only the 3 properties that actually change on hover.
+         * Also added `will-change: transform` so the browser promotes cards to their
+         * own compositing layer before the hover starts — eliminates jank on entry.
+         */
+        .animate-card {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
+            /* Contain layout so card reflows don't cascade to parent */
+            contain: layout style;
+        }
+        .animate-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+            border-color: #475569;
         }
 
-        /* Progress Bar Shimmer */
+        /*
+         * PERF FIX: Capped slide-in animation delay at 20 items max.
+         * With many rows, hundreds of simultaneous keyframe animations
+         * saturate the compositor. Items beyond the cap appear instantly.
+         */
+        .list-item-entry { animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) both; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /*
+         * PERF FIX: `will-change: transform` tells the browser to keep the
+         * shimmer element on its own GPU layer, preventing the shimmer from
+         * triggering paint on the parent progress bar on every frame.
+         */
         @keyframes shimmer {
-            0% { transform: translateX(-100%); }
+            0%   { transform: translateX(-100%); }
             100% { transform: translateX(100%); }
         }
         .animate-shimmer {
-            animation: shimmer 2s infinite;
+            animation: shimmer 2.2s infinite;
+            will-change: transform;
+        }
+
+        /*
+         * PERF FIX: Sticky header promoted to its own compositing layer.
+         * Without this, every scroll event repaints the header over the page.
+         */
+        .sticky-header-optimized {
+            will-change: transform;
+            transform: translateZ(0);
+        }
+
+        /*
+         * PERF FIX: content-visibility: auto skips rendering of off-screen
+         * sections entirely until the user scrolls near them. The
+         * contain-intrinsic-size reserves layout space so the scrollbar
+         * doesn't jump when content is revealed.
+         */
+        .section-lazy {
+            content-visibility: auto;
+            contain-intrinsic-size: 0 600px;
         }
     </style>
 </head>
@@ -83,7 +137,7 @@
 
     <main class="flex-1 overflow-y-auto relative scroll-smooth w-full">
         
-        <header class="sticky top-0 bg-akij-darkbg/85 backdrop-blur-xl z-30 px-8 py-5 border-b border-akij-borderc flex justify-between items-center transition-all duration-300 shadow-sm">
+        <header class="sticky-header-optimized sticky top-0 bg-akij-darkbg/85 backdrop-blur-xl z-30 px-8 py-5 border-b border-akij-borderc flex justify-between items-center transition-colors duration-300 shadow-sm">
             <div class="flex items-center gap-4">
                 <div class="w-11 h-11 bg-gradient-to-tr from-indigo-600 to-akij-violet rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30 relative overflow-hidden group border border-indigo-400/30">
                     <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
@@ -206,7 +260,7 @@
                             Key Metrics Data
                         </div>
                     </div>
-                    <div class="overflow-x-auto max-h-[440px]">
+                    <div class="overflow-x-auto max-h-[440px] scroll-smooth">
                         <table class="min-w-full divide-y divide-slate-700">
                             <thead class="bg-slate-800/80 sticky top-0 shadow-sm z-10 backdrop-blur-md">
                                 <tr>
@@ -231,7 +285,7 @@
 
             <hr class="border-slate-700">
 
-            <section class="space-y-6">
+            <section class="space-y-6 section-lazy">
                 <div class="flex items-center justify-between">
                     <h2 class="text-xl font-bold text-slate-100 flex items-center">
                         <div class="p-1.5 bg-emerald-500/10 rounded-lg mr-3 border border-emerald-500/20 text-emerald-400 shadow-neon-emerald">
@@ -242,7 +296,7 @@
                 </div>
 
                 <div class="bg-akij-cardbg border border-akij-borderc rounded-2xl shadow-glass overflow-hidden animate-card">
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto scroll-smooth">
                         <table class="min-w-full divide-y divide-slate-700">
                             <thead class="bg-slate-800/80" id="agenda-table-head"></thead>
                             <tbody class="divide-y divide-slate-700/80 bg-akij-cardbg" id="agenda-table-body"></tbody>
@@ -253,7 +307,7 @@
 
             <hr class="border-slate-700">
 
-            <section id="agenda-section" class="space-y-6">
+            <section id="agenda-section" class="space-y-6 section-lazy">
                 <div class="flex items-center justify-between">
                     <h2 class="text-xl font-bold text-slate-100 flex items-center">
                         <div class="p-1.5 bg-indigo-500/10 rounded-lg mr-3 border border-indigo-500/20 text-indigo-400 shadow-neon-indigo">
@@ -328,7 +382,7 @@
                             </div>
                             <span class="px-2.5 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[10px] font-extrabold rounded-md uppercase tracking-wider">Active</span>
                         </div>
-                        <div class="overflow-y-auto flex-1 max-h-[330px] pr-2">
+                        <div class="overflow-y-auto flex-1 max-h-[330px] pr-2 scroll-smooth">
                             <ul id="inprogress-list" class="space-y-3"></ul>
                         </div>
                     </div>
@@ -342,7 +396,7 @@
                         </div>
                         <span class="px-2.5 py-1 bg-rose-500/10 text-akij-rose border border-rose-500/20 text-[10px] font-extrabold rounded-md uppercase tracking-wider">Awaiting Definition</span>
                     </div>
-                    <div class="overflow-y-auto max-h-[380px] pr-2">
+                    <div class="overflow-y-auto max-h-[380px] pr-2 scroll-smooth">
                         <ul id="unexplained-list" class="space-y-3"></ul>
                     </div>
                 </div>
@@ -358,7 +412,7 @@
                         <div id="all-agenda-months" class="flex flex-wrap gap-3"></div>
                     </div>
                     
-                    <div class="overflow-x-auto max-h-[500px]">
+                    <div class="overflow-x-auto max-h-[500px] scroll-smooth">
                         <table class="min-w-full divide-y divide-slate-700">
                             <thead class="bg-slate-800/80 sticky top-0 shadow-sm z-10 backdrop-blur-md" id="all-agenda-head"></thead>
                             <tbody class="divide-y divide-slate-700/80 bg-akij-cardbg" id="all-agenda-body"></tbody>
@@ -378,8 +432,8 @@
         Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
         Chart.defaults.color = '#94a3b8'; 
         Chart.defaults.scale.grid.color = '#334155';
-        Chart.defaults.animation.duration = 1400;
-        Chart.defaults.animation.easing = 'cubicBezier(0.25, 1, 0.5, 1)';
+        Chart.defaults.animation.duration = 700;
+        Chart.defaults.animation.easing = 'easeOutQuart';
         
         async function fetchRawCSV(url) {
             try {
@@ -545,14 +599,17 @@
                     return;
                 }
 
+                // PERF FIX: DocumentFragment — all rows are built off-DOM and inserted once.
+                const frag = document.createDocumentFragment();
                 filteredRows.forEach((row, rIdx) => {
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-700/40 transition-colors duration-150 border-b border-slate-700/60 list-item-entry";
-                    tr.style.animationDelay = `${rIdx * 15}ms`;
-                    
+                    // Cap stagger delay at 20 rows
+                    tr.style.animationDelay = `${Math.min(rIdx, 20) * 12}ms`;
+
                     headers.forEach((h, cIdx) => {
-                        if (cIdx === codeColIdx) return; // Skip "Code" column visually
-                        
+                        if (cIdx === codeColIdx) return;
+
                         const td = document.createElement('td');
                         td.className = "px-4 py-3 whitespace-nowrap text-sm text-slate-200 font-medium";
                         let val = row[cIdx] ? String(row[cIdx]).trim() : '';
@@ -563,15 +620,16 @@
                             else if (val.toLowerCase().includes('complete') || val.toLowerCase().includes('done')) colorClass = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
                             else if (val.toLowerCase().includes('initiate')) colorClass = "bg-slate-700/40 text-slate-400 border border-slate-600/50";
                             else if (val.toLowerCase().includes('unexplain') || val.toLowerCase().includes('review')) colorClass = "bg-rose-500/10 text-akij-rose border border-rose-500/30";
-                            
+
                             td.innerHTML = `<span class="px-3 py-1 rounded-lg text-xs font-bold ${colorClass}">${val || '-'}</span>`;
                         } else {
                             td.innerText = val;
                         }
                         tr.appendChild(td);
                     });
-                    tbody.appendChild(tr);
+                    frag.appendChild(tr);
                 });
+                tbody.appendChild(frag);
             }
 
             // Render Buttons
@@ -691,10 +749,12 @@
             if(inProgressRows.length === 0) {
                 listEl.innerHTML = '<li class="text-sm text-slate-400 italic py-4 text-center">No active tasks found.</li>';
             } else {
+                // PERF FIX: DocumentFragment for list items
+                const frag = document.createDocumentFragment();
                 inProgressRows.forEach((row, index) => {
                     const li = document.createElement('li');
-                    li.className = "list-item-entry p-4 bg-slate-800/50 rounded-xl border border-slate-700 flex flex-col gap-3 hover:border-amber-500/40 hover:bg-slate-700/50 transition-all duration-300";
-                    li.style.animationDelay = `${index * 70}ms`;
+                    li.className = "list-item-entry p-4 bg-slate-800/50 rounded-xl border border-slate-700 flex flex-col gap-3 hover:border-amber-500/40 hover:bg-slate-700/50 transition-colors duration-200";
+                    li.style.animationDelay = `${Math.min(index, 20) * 60}ms`;
                     li.innerHTML = `
                         <div class="flex items-start gap-3">
                             <div class="mt-1.5 w-2 h-2 rounded-full bg-akij-amber shrink-0 shadow-[0_0_8px_#fbbf24]"></div>
@@ -714,22 +774,25 @@
                             </div>
                         </div>
                     `;
-                    listEl.appendChild(li);
+                    frag.appendChild(li);
                 });
+                listEl.appendChild(frag);
             }
 
             const unexpListEl = document.getElementById('unexplained-list');
             if(unexplainedRows.length === 0) {
                 unexpListEl.innerHTML = '<li class="text-sm text-slate-400 italic py-4 text-center">No tasks with unexplained status values.</li>';
             } else {
+                // PERF FIX: DocumentFragment for unexplained list items
+                const uFrag = document.createDocumentFragment();
                 unexplainedRows.forEach((row, index) => {
                     const rawValues = row.__rawRowValues || [];
                     const statusStr = rawValues[13] ? String(rawValues[13]).trim() : (statusKey ? String(row[statusKey] || '').trim() : '');
                     const displayStatus = statusStr ? `Value: "${statusStr}"` : 'Awaiting Status Update';
 
                     const li = document.createElement('li');
-                    li.className = "list-item-entry p-4 bg-slate-800/50 rounded-xl border border-slate-700 flex flex-col gap-3 hover:border-rose-500/40 hover:bg-slate-700/50 transition-all duration-300 w-full";
-                    li.style.animationDelay = `${index * 60}ms`;
+                    li.className = "list-item-entry p-4 bg-slate-800/50 rounded-xl border border-slate-700 flex flex-col gap-3 hover:border-rose-500/40 hover:bg-slate-700/50 transition-colors duration-200 w-full";
+                    li.style.animationDelay = `${Math.min(index, 20) * 50}ms`;
                     li.innerHTML = `
                         <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                             <div class="flex items-start gap-3">
@@ -754,14 +817,15 @@
                             </div>
                         </div>
                     `;
-                    unexpListEl.appendChild(li);
+                    uFrag.appendChild(li);
                 });
+                unexpListEl.appendChild(uFrag);
             }
         }
 
         // ================= TODAY'S AGENDA TABLE LOGIC =================
         function renderSection2(rawData) {
-            const mapped = mapData(rawData, 1); 
+            const mapped = mapData(rawData, 1);
             const thead = document.getElementById('agenda-table-head');
             const tbody = document.getElementById('agenda-table-body');
             thead.innerHTML = '';
@@ -771,24 +835,32 @@
 
             const headers = Object.keys(mapped[0]).filter(k => k !== '__rawRowValues');
             const headerRow = document.createElement('tr');
+            // PERF FIX: Build header cells into a fragment first
+            const hFrag = document.createDocumentFragment();
             headers.forEach(h => {
                 const th = document.createElement('th');
                 th.className = "px-6 py-4 text-left text-[11px] font-bold text-slate-300 uppercase tracking-wider bg-slate-800/80";
                 th.innerText = h;
-                headerRow.appendChild(th);
+                hFrag.appendChild(th);
             });
+            headerRow.appendChild(hFrag);
             thead.appendChild(headerRow);
 
+            // PERF FIX: Accumulate all rows in a DocumentFragment and append once.
+            // Previously each tr was appended one-at-a-time to the live tbody, which
+            // can cause a layout recalculation per row.
+            const frag = document.createDocumentFragment();
             mapped.forEach((row, rIdx) => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-700/40 list-item-entry transition-colors duration-150 border-b border-slate-700";
-                tr.style.animationDelay = `${rIdx * 30}ms`;
-                
+                // Cap stagger delay at 20 rows
+                tr.style.animationDelay = `${Math.min(rIdx, 20) * 25}ms`;
+
                 headers.forEach(h => {
                     const td = document.createElement('td');
                     td.className = "px-6 py-4 whitespace-nowrap text-sm text-slate-200 font-medium";
                     let val = row[h] ? String(row[h]).trim() : '';
-                    
+
                     if (h.toLowerCase().includes('status')) {
                         let colorClass = "bg-slate-700 text-slate-300 border border-slate-600";
                         if (val.toLowerCase().includes('progress')) colorClass = "bg-amber-500/10 text-amber-500 border border-amber-500/30";
@@ -800,8 +872,9 @@
                     }
                     tr.appendChild(td);
                 });
-                tbody.appendChild(tr);
+                frag.appendChild(tr);
             });
+            tbody.appendChild(frag);
         }
 
         // ================= PERFORMANCE REPORT TABLE DYNAMIC LOGIC =================
@@ -823,7 +896,7 @@
             if (headerIdx === -1) { headerIdx = rawData.length > 13 ? 13 : 0; }
 
             const headers = rawData[headerIdx].map(h => String(h || '').trim());
-            
+
             const catIdx   = headers.findIndex(h => h.toLowerCase().includes('category'));
             const pgIdx    = headers.findIndex(h => h.toLowerCase().includes('product') || h.toLowerCase().includes('group'));
             const machIdx  = headers.findIndex(h => h.toLowerCase().includes('machine') || h.toLowerCase().includes('table'));
@@ -840,11 +913,15 @@
 
             const dataRows = rawData.slice(headerIdx + 1);
 
-            dataRows.forEach((row, idx) => {
+            // PERF FIX: Build all rows into a DocumentFragment and write to the DOM once.
+            const frag = document.createDocumentFragment();
+            let visibleIdx = 0;
+
+            dataRows.forEach((row) => {
                 const cat       = String(row[finalCatIdx] || '').trim();
                 const prodGroup = String(row[finalPgIdx] || '').trim();
                 const machine   = String(row[finalMachIdx] || '').trim();
-                
+
                 if (!cat && !prodGroup && !machine) return;
                 if (cat.toLowerCase() === 'total' || prodGroup.toLowerCase() === 'total' || cat.toLowerCase().includes('grand')) return;
 
@@ -868,14 +945,16 @@
                 }
 
                 const varianceNum = tgt - act;
-                let varColorClass = "text-emerald-400 font-bold"; 
+                let varColorClass = "text-emerald-400 font-bold";
                 if (varianceNum > 0) { varColorClass = "text-rose-400 font-bold"; }
 
                 const varDisplay = varianceNum === 0 ? "0" : varianceNum.toLocaleString();
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-700/40 list-item-entry border-b border-slate-700/60";
-                tr.style.animationDelay = `${idx * 20}ms`;
+                // Cap stagger delay at 20 rows
+                tr.style.animationDelay = `${Math.min(visibleIdx, 20) * 15}ms`;
+                visibleIdx++;
 
                 tr.innerHTML = `
                     <td class="px-4 py-3 whitespace-nowrap text-xs font-bold text-slate-100">${cat || '-'}</td>
@@ -886,8 +965,9 @@
                     <td class="px-4 py-3 whitespace-nowrap text-xs font-bold text-right"><span class="px-2 py-0.5 rounded ${achivColor}">${achivVal || '0.00%'}</span></td>
                     <td class="px-4 py-3 whitespace-nowrap text-xs text-right ${varColorClass}">${varDisplay}</td>
                 `;
-                tbody.appendChild(tr);
+                frag.appendChild(tr);
             });
+            tbody.appendChild(frag);
         }
 
         // ================= TARGET VS ACHIEVEMENT BAR CHART LOGIC =================
@@ -1057,15 +1137,17 @@
         // ================= PROGRESS STATUS BARS LOGIC =================
         function renderProgressBar(rawCSVRows) {
             const container = document.getElementById('progress-container');
-            container.innerHTML = ''; 
 
             if (rawCSVRows.length < 7) {
                 container.innerHTML = '<p class="text-sm text-slate-500 italic">Data row index mismatch.</p>';
                 return;
             }
 
-            const headerRow = rawCSVRows[5]; 
-            const dataRow   = rawCSVRows[6]; 
+            const headerRow = rawCSVRows[5];
+            const dataRow   = rawCSVRows[6];
+            // PERF FIX: Collect HTML strings and write once instead of appending
+            // each element individually. Each live-DOM append can force a reflow.
+            const htmlParts = [];
             let generatedCount = 0;
 
             for (let cIdx = 0; cIdx < dataRow.length; cIdx++) {
@@ -1083,7 +1165,7 @@
 
                         let metricLabel = String(headerRow[cIdx] || '').trim();
                         if (!metricLabel || metricLabel.toLowerCase().includes('achieve') || metricLabel.toLowerCase().includes('actual')) {
-                            metricLabel = (cIdx > 0 && String(headerRow[cIdx - 1]).trim() !== '') 
+                            metricLabel = (cIdx > 0 && String(headerRow[cIdx - 1]).trim() !== '')
                                 ? String(headerRow[cIdx - 1]).trim() + " Status"
                                 : `Performance Metric ${generatedCount}`;
                         }
@@ -1091,8 +1173,8 @@
                         let percentage = 0;
                         if (tgt > 0) percentage = (act / tgt) * 100;
                         const displayPercent = percentage.toFixed(1);
-                        const barWidth = Math.min(percentage, 100); 
-                        
+                        const barWidth = Math.min(percentage, 100);
+
                         let barColor = 'from-indigo-500 to-purple-500';
                         let textColor = 'text-indigo-400';
                         let dotColor = 'bg-indigo-400';
@@ -1110,52 +1192,49 @@
                             glowColor = 'shadow-[0_0_15px_rgba(251,191,36,0.4)]';
                         }
 
-                        const progressItem = document.createElement('div');
-                        progressItem.className = "flex flex-col space-y-3 list-item-entry w-full py-2";
-                        progressItem.style.animationDelay = `${generatedCount * 100}ms`;
-                        progressItem.innerHTML = `
-                            <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                                <span class="text-slate-100 font-semibold tracking-wide flex items-center text-sm drop-shadow-sm">
-                                    <div class="w-2 h-2 rounded-full ${dotColor} mr-3 shadow-md ${glowColor.replace('15px', '8px')}"></div>
-                                    ${metricLabel}
-                                </span>
-                                
-                                <div class="flex items-center gap-5 bg-slate-800/80 px-5 py-2.5 rounded-xl border border-slate-700/60 shadow-lg backdrop-blur-md">
-                                    <div class="flex flex-col items-start min-w-[3.5rem]">
-                                        <span class="text-[10px] text-slate-400 uppercase tracking-widest mb-1 font-bold">Target</span>
-                                        <span class="text-slate-300 font-medium text-sm tabular-nums">${tgt.toLocaleString()}</span>
+                        // PERF FIX: Cap stagger delay at 20 items (1600ms max total).
+                        // Hundreds of concurrent staggered keyframes saturate the
+                        // compositor thread and cause visible scroll stutter.
+                        const delay = Math.min(generatedCount, 20) * 80;
+
+                        htmlParts.push(`
+                            <div class="flex flex-col space-y-3 list-item-entry w-full py-2" style="animation-delay:${delay}ms">
+                                <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                                    <span class="text-slate-100 font-semibold tracking-wide flex items-center text-sm">
+                                        <div class="w-2 h-2 rounded-full ${dotColor} mr-3 shadow-md ${glowColor.replace('15px', '8px')}"></div>
+                                        ${metricLabel}
+                                    </span>
+                                    <div class="flex items-center gap-5 bg-slate-800 px-5 py-2.5 rounded-xl border border-slate-700/60 shadow-lg">
+                                        <div class="flex flex-col items-start min-w-[3.5rem]">
+                                            <span class="text-[10px] text-slate-400 uppercase tracking-widest mb-1 font-bold">Target</span>
+                                            <span class="text-slate-300 font-medium text-sm tabular-nums">${tgt.toLocaleString()}</span>
+                                        </div>
+                                        <div class="w-px h-8 bg-slate-600/50 rounded-full"></div>
+                                        <div class="flex flex-col items-start min-w-[3.5rem]">
+                                            <span class="text-[10px] text-slate-400 uppercase tracking-widest mb-1 font-bold">Actual</span>
+                                            <span class="text-white font-bold text-sm tabular-nums">${act.toLocaleString()}</span>
+                                        </div>
+                                        <div class="w-px h-8 bg-slate-600/50 rounded-full"></div>
+                                        <div class="flex flex-col items-end min-w-[4.5rem]">
+                                            <span class="text-[10px] text-slate-400 uppercase tracking-widest mb-1 font-bold">Achieved</span>
+                                            <span class="${textColor} font-black text-2xl leading-none tabular-nums">${displayPercent}<span class="text-lg opacity-80">%</span></span>
+                                        </div>
                                     </div>
-                                    
-                                    <div class="w-px h-8 bg-slate-600/50 rounded-full"></div>
-                                    
-                                    <div class="flex flex-col items-start min-w-[3.5rem]">
-                                        <span class="text-[10px] text-slate-400 uppercase tracking-widest mb-1 font-bold">Actual</span>
-                                        <span class="text-white font-bold text-sm tabular-nums drop-shadow-sm">${act.toLocaleString()}</span>
-                                    </div>
-                                    
-                                    <div class="w-px h-8 bg-slate-600/50 rounded-full"></div>
-                                    
-                                    <div class="flex flex-col items-end min-w-[4.5rem]">
-                                        <span class="text-[10px] text-slate-400 uppercase tracking-widest mb-1 font-bold">Achieved</span>
-                                        <span class="${textColor} font-black text-2xl leading-none drop-shadow-md tabular-nums">${displayPercent}<span class="text-lg opacity-80">%</span></span>
+                                </div>
+                                <div class="w-full bg-slate-900 rounded-full h-3 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] border border-slate-700/50 overflow-hidden relative">
+                                    <div class="bg-gradient-to-r ${barColor} h-full rounded-full transition-[width] duration-1000 ease-out relative ${glowColor}" style="width:${barWidth}%">
+                                        <div class="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.3)_50%,transparent_100%)] animate-shimmer"></div>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="w-full bg-slate-900/80 rounded-full h-3 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] border border-slate-700/50 overflow-hidden relative backdrop-blur-sm">
-                                <div class="bg-gradient-to-r ${barColor} h-full rounded-full transition-all duration-1000 ease-out relative ${glowColor}" style="width: ${barWidth}%">
-                                    <div class="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.3)_50%,transparent_100%)] animate-shimmer"></div>
-                                </div>
-                            </div>
-                        `;
-                        container.appendChild(progressItem);
+                        `);
                     }
                 }
             }
-            
-            if (container.children.length === 0) {
-                container.innerHTML = '<p class="text-sm text-slate-500 italic text-center py-4">No metrics found matching layout rules.</p>';
-            }
+
+            container.innerHTML = htmlParts.length > 0
+                ? htmlParts.join('')
+                : '<p class="text-sm text-slate-500 italic text-center py-4">No metrics found matching layout rules.</p>';
         }
 
         document.addEventListener('DOMContentLoaded', initDashboard);
