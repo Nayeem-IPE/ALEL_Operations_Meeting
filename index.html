@@ -144,7 +144,7 @@
                     <svg class="w-6 h-6 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-extrabold tracking-tight uppercase text-white drop-shadow-sm">AKIJ LIGHT ENGINEERING DAILY OPERATIONS MEETING</h1>
+                    <h1 class="text-2xl font-extrabold tracking-tight uppercase text-white drop-shadow-sm">AKIJ LIGHT ENGINEERING-DAILY OPERATIONS MEETING</h1>
                     <div class="flex items-center text-indigo-400 mt-1">
                         <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         <p class="text-[11px] font-bold tracking-wider uppercase" id="current-date">Loading date...</p>
@@ -165,7 +165,7 @@
                         <div class="p-1.5 bg-amber-500/10 rounded-lg mr-3 border border-amber-500/20 text-amber-500">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                         </div>
-                        Performance Report (MTD)
+                        Performance Report (Month to Date)
                     </h2>
                 </div>
 
@@ -412,10 +412,10 @@
                         <div id="all-agenda-months" class="flex flex-wrap gap-3"></div>
                     </div>
                     
-                    <div class="overflow-x-auto max-h-[500px] scroll-smooth">
-                        <table class="min-w-full divide-y divide-slate-700">
+                    <div class="overflow-x-auto max-h-[460px] scroll-smooth">
+                        <table class="w-full divide-y divide-slate-700 text-xs">
                             <thead class="bg-slate-800/80 sticky top-0 shadow-sm z-10 backdrop-blur-md" id="all-agenda-head"></thead>
-                            <tbody class="divide-y divide-slate-700/80 bg-akij-cardbg" id="all-agenda-body"></tbody>
+                            <tbody class="divide-y divide-slate-700/60 bg-akij-cardbg" id="all-agenda-body"></tbody>
                         </table>
                     </div>
                 </div>
@@ -582,7 +582,10 @@
             headers.forEach((h, cIdx) => {
                 if (cIdx === codeColIdx) return; // Skip "Code" column visually
                 const th = document.createElement('th');
-                th.className = "px-4 py-3.5 text-left text-xs font-bold text-slate-300 uppercase tracking-wider";
+                // Compact header: tighter padding + smaller text
+                const isRemarks = h.toLowerCase().includes('remark');
+                th.className = "px-3 py-2 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap"
+                    + (isRemarks ? " w-32" : "");
                 th.innerText = h;
                 headerRow.appendChild(th);
             });
@@ -603,7 +606,7 @@
                 const frag = document.createDocumentFragment();
                 filteredRows.forEach((row, rIdx) => {
                     const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-700/40 transition-colors duration-150 border-b border-slate-700/60 list-item-entry";
+                    tr.className = "hover:bg-slate-700/30 transition-colors duration-100 border-b border-slate-700/50 list-item-entry";
                     // Cap stagger delay at 20 rows
                     tr.style.animationDelay = `${Math.min(rIdx, 20) * 12}ms`;
 
@@ -611,7 +614,17 @@
                         if (cIdx === codeColIdx) return;
 
                         const td = document.createElement('td');
-                        td.className = "px-4 py-3 whitespace-nowrap text-sm text-slate-200 font-medium";
+                        const isRemarks = h.toLowerCase().includes('remark');
+
+                        if (isRemarks) {
+                            // Remarks: narrow, wraps text, smaller leading
+                            td.className = "px-3 py-1.5 text-[11px] text-slate-400 font-normal leading-snug max-w-[120px] break-words align-top";
+                        } else if (h.toLowerCase().includes('status')) {
+                            td.className = "px-3 py-1.5 whitespace-nowrap align-middle";
+                        } else {
+                            td.className = "px-3 py-1.5 whitespace-nowrap text-xs text-slate-200 font-medium align-middle";
+                        }
+
                         let val = row[cIdx] ? String(row[cIdx]).trim() : '';
 
                         if (h.toLowerCase().includes('status')) {
@@ -621,9 +634,9 @@
                             else if (val.toLowerCase().includes('initiate')) colorClass = "bg-slate-700/40 text-slate-400 border border-slate-600/50";
                             else if (val.toLowerCase().includes('unexplain') || val.toLowerCase().includes('review')) colorClass = "bg-rose-500/10 text-akij-rose border border-rose-500/30";
 
-                            td.innerHTML = `<span class="px-3 py-1 rounded-lg text-xs font-bold ${colorClass}">${val || '-'}</span>`;
+                            td.innerHTML = `<span class="px-2 py-0.5 rounded text-[10px] font-bold ${colorClass}">${val || '-'}</span>`;
                         } else {
-                            td.innerText = val;
+                            td.innerText = val || '-';
                         }
                         tr.appendChild(td);
                     });
