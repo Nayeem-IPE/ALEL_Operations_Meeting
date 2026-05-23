@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akij Light Engineering Daily Operations Meeting</title>
+    <title>AKIJ LIGHT ENGINEERING-Daily Operations Meeting</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,9 +25,9 @@
                             emerald: '#34d399',
                             amber: '#fbbf24',
                             rose: '#fb7185',
-                            darkbg: '#0f172a', /* slate-900 */
-                            cardbg: '#1e293b', /* slate-800 */
-                            borderc: '#334155' /* slate-700 */
+                            darkbg: '#0f172a',
+                            cardbg: '#1e293b',
+                            borderc: '#334155'
                         }
                     },
                     boxShadow: {
@@ -130,7 +130,7 @@
                             <p class="text-[11px] text-slate-500 font-medium leading-relaxed">Total operational target expected for yesterday.</p>
                         </div>
                         <div class="mt-6 flex items-end justify-between">
-                            <span class="text-4xl font-extrabold text-white tracking-tight leading-none drop-shadow-md" id="card-yday-target">-</span>
+                            <span class="text-4xl font-extrabold text-white tracking-tight leading-none drop-shadow-md tabular-nums" id="card-yday-target">-</span>
                             <div class="p-2.5 bg-slate-700/30 border border-slate-600/50 rounded-xl text-slate-400">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                             </div>
@@ -150,7 +150,7 @@
                             <p class="text-[11px] text-slate-500 font-medium leading-relaxed">Total operational achievement finalized yesterday.</p>
                         </div>
                         <div class="mt-6 flex items-end justify-between">
-                            <span class="text-4xl font-extrabold text-white tracking-tight leading-none drop-shadow-md" id="card-yday-achievement">-</span>
+                            <span class="text-4xl font-extrabold text-white tracking-tight leading-none drop-shadow-md tabular-nums" id="card-yday-achievement">-</span>
                             <div class="p-2.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-400 shadow-neon-indigo">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                             </div>
@@ -171,7 +171,7 @@
                         </div>
                         <div class="mt-6 flex items-end justify-between">
                             <div class="flex items-end space-x-2">
-                                <span class="text-4xl font-extrabold text-white tracking-tight leading-none drop-shadow-md" id="card-remaining-days">-</span>
+                                <span class="text-4xl font-extrabold text-white tracking-tight leading-none drop-shadow-md tabular-nums" id="card-remaining-days">-</span>
                                 <span class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider mb-1">Days Left</span>
                             </div>
                             <div class="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 shadow-neon-emerald">
@@ -346,6 +346,26 @@
                         <ul id="unexplained-list" class="space-y-3"></ul>
                     </div>
                 </div>
+                
+                <div class="bg-akij-cardbg border border-akij-borderc rounded-2xl shadow-glass overflow-hidden flex flex-col animate-card w-full mt-6">
+                    <div class="p-6 border-b border-slate-700 bg-slate-800/40">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center text-sm font-semibold text-slate-300 uppercase tracking-wide">
+                                <svg class="w-4 h-4 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                All Agendas Archive
+                            </div>
+                        </div>
+                        <div id="all-agenda-months" class="flex flex-wrap gap-3"></div>
+                    </div>
+                    
+                    <div class="overflow-x-auto max-h-[500px]">
+                        <table class="min-w-full divide-y divide-slate-700">
+                            <thead class="bg-slate-800/80 sticky top-0 shadow-sm z-10 backdrop-blur-md" id="all-agenda-head"></thead>
+                            <tbody class="divide-y divide-slate-700/80 bg-akij-cardbg" id="all-agenda-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
             </section>
             
             <div class="h-10"></div>
@@ -403,13 +423,17 @@
             const URL_TODAYS_AGENDA = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQ7tTxGdPTwtKYgRMo2gi6Aip7fSnCEJNz7BUBvAp_itQe0EANFX_CLSitLwdv7-SoAYd3wSnoEifd/pub?gid=1681197776&single=true&output=csv";
             const URL_REPORTS_TABLE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQ7tTxGdPTwtKYgRMo2gi6Aip7fSnCEJNz7BUBvAp_itQe0EANFX_CLSitLwdv7-SoAYd3wSnoEifd/pub?gid=883381427&single=true&output=csv";
             const URL_REPORTS_GRAPH = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQ7tTxGdPTwtKYgRMo2gi6Aip7fSnCEJNz7BUBvAp_itQe0EANFX_CLSitLwdv7-SoAYd3wSnoEifd/pub?gid=1408967296&single=true&output=csv";
+            
+            // Note: Update this if the All Agendas tab has a different gid!
+            const URL_ALL_AGENDAS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQ7tTxGdPTwtKYgRMo2gi6Aip7fSnCEJNz7BUBvAp_itQe0EANFX_CLSitLwdv7-SoAYd3wSnoEifd/pub?gid=764850466&single=true&output=csv";
 
-            const [rawStatus, rawAgenda, rawTable, rawGraph, rawProgress] = await Promise.all([
+            const [rawStatus, rawAgenda, rawTable, rawGraph, rawProgress, rawAllAgendas] = await Promise.all([
                 fetchRawCSV(URL_AGENDA_STATUS),
                 fetchRawCSV(URL_TODAYS_AGENDA),
                 fetchRawCSV(URL_REPORTS_TABLE), 
                 fetchRawCSV(URL_REPORTS_GRAPH), 
-                fetchRawCSV(URL_REPORTS_TABLE)  
+                fetchRawCSV(URL_REPORTS_TABLE),
+                fetchRawCSV(URL_ALL_AGENDAS)
             ]);
 
             calculateRemainingDays();
@@ -418,10 +442,174 @@
             renderPerformanceGraph(rawGraph); 
             renderReportTable(rawTable); 
             renderProgressBar(rawProgress); 
+            renderSection3(rawAllAgendas);
 
             const loader = document.getElementById('loading-overlay');
-            loader.classList.add('fade-out');
-            setTimeout(() => loader.remove(), 800);
+            if (loader) {
+                loader.classList.add('fade-out');
+                setTimeout(() => loader.remove(), 800);
+            }
+        }
+
+        // ================= SHEET 3: ALL AGENDA SECTION WITH MONTH-YEAR FILTER =================
+        function renderSection3(rawData) {
+            let headerIdx = 0;
+            while (headerIdx < rawData.length && (!rawData[headerIdx] || rawData[headerIdx].length < 2 || !String(rawData[headerIdx][0]).trim())) {
+                headerIdx++;
+            }
+            if (headerIdx >= rawData.length) return;
+
+            const headers = rawData[headerIdx].map(h => String(h || '').trim());
+            const dataRows = rawData.slice(headerIdx + 1).filter(row => row && row.length > 0 && String(row[0]).trim() !== '');
+
+            // Find Code Column dynamically to omit it from UI
+            const codeColIdx = headers.findIndex(h => h.toLowerCase() === 'code');
+
+            // Find Date Column dynamically (defaults to col 0)
+            let dateColIdx = headers.findIndex(h => h.toLowerCase().includes('date'));
+            if (dateColIdx === -1) dateColIdx = 0;
+
+            // Robust Date Parser to convert to "Month Year"
+            function getMonthYear(dateStr) {
+                if (!dateStr) return 'Unknown';
+                let str = String(dateStr).trim().split(' ')[0]; // remove time if any
+                
+                // Format: YYYY-MM-DD
+                let matchISO = str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+                if (matchISO) {
+                    let d = new Date(`${matchISO[2]}/${matchISO[3]}/${matchISO[1]}`);
+                    if (!isNaN(d.getTime())) return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                }
+
+                // Format: DD/MM/YYYY or DD-MMM-YYYY
+                let matchFormat = str.match(/^(\d{1,2})[\/\-](\d{1,2}|[a-zA-Z]{3,})[\/\-](\d{2,4})$/);
+                if (matchFormat) {
+                    let year = matchFormat[3];
+                    if (year.length === 2) year = '20' + year;
+                    let d = new Date(`${matchFormat[2]}/${matchFormat[1]}/${year}`);
+                    if (!isNaN(d.getTime())) return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                }
+
+                // Format: DD/MM or DD-MMM (assumes current year)
+                let matchShort = str.match(/^(\d{1,2})[\/\-](\d{1,2}|[a-zA-Z]{3,})$/);
+                if (matchShort) {
+                    let year = new Date().getFullYear();
+                    let d = new Date(`${matchShort[2]}/${matchShort[1]}/${year}`);
+                    if (!isNaN(d.getTime())) return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                }
+
+                // Fallback default parser
+                let d = new Date(str);
+                if (!isNaN(d.getTime())) return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+                return str; // If absolutely nothing works, return raw string
+            }
+
+            const monthsSet = new Set();
+            dataRows.forEach(row => {
+                row._monthYear = getMonthYear(String(row[dateColIdx] || '').trim());
+                if (row._monthYear && row._monthYear !== 'Unknown') {
+                    monthsSet.add(row._monthYear);
+                }
+            });
+
+            // Sort chronologically
+            const uniqueMonths = Array.from(monthsSet).sort((a, b) => new Date(a) - new Date(b));
+
+            const monthContainer = document.getElementById('all-agenda-months');
+            const thead = document.getElementById('all-agenda-head');
+            const tbody = document.getElementById('all-agenda-body');
+            
+            if (!monthContainer || !thead || !tbody) return;
+
+            // Render Headers (Omitting Code column)
+            thead.innerHTML = '';
+            const headerRow = document.createElement('tr');
+            headers.forEach((h, cIdx) => {
+                if (cIdx === codeColIdx) return; // Skip "Code" column visually
+                const th = document.createElement('th');
+                th.className = "px-4 py-3.5 text-left text-xs font-bold text-slate-300 uppercase tracking-wider";
+                th.innerText = h;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+
+            // Render Table Content
+            function renderTableForMonth(selectedMonth) {
+                tbody.innerHTML = '';
+                const filteredRows = selectedMonth === 'All' ? dataRows : dataRows.filter(r => r._monthYear === selectedMonth);
+
+                if (filteredRows.length === 0) {
+                    const visibleColsCount = codeColIdx !== -1 ? headers.length - 1 : headers.length;
+                    tbody.innerHTML = `<tr><td colspan="${visibleColsCount}" class="px-6 py-4 text-center text-sm text-slate-500 italic">No agendas found.</td></tr>`;
+                    return;
+                }
+
+                filteredRows.forEach((row, rIdx) => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-700/40 transition-colors duration-150 border-b border-slate-700/60 list-item-entry";
+                    tr.style.animationDelay = `${rIdx * 15}ms`;
+                    
+                    headers.forEach((h, cIdx) => {
+                        if (cIdx === codeColIdx) return; // Skip "Code" column visually
+                        
+                        const td = document.createElement('td');
+                        td.className = "px-4 py-3 whitespace-nowrap text-sm text-slate-200 font-medium";
+                        let val = row[cIdx] ? String(row[cIdx]).trim() : '';
+
+                        if (h.toLowerCase().includes('status')) {
+                            let colorClass = "bg-slate-700 text-slate-300 border border-slate-600";
+                            if (val.toLowerCase().includes('progress') || val.toLowerCase().includes('active')) colorClass = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                            else if (val.toLowerCase().includes('complete') || val.toLowerCase().includes('done')) colorClass = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                            else if (val.toLowerCase().includes('initiate')) colorClass = "bg-slate-700/40 text-slate-400 border border-slate-600/50";
+                            else if (val.toLowerCase().includes('unexplain') || val.toLowerCase().includes('review')) colorClass = "bg-rose-500/10 text-akij-rose border border-rose-500/30";
+                            
+                            td.innerHTML = `<span class="px-3 py-1 rounded-lg text-xs font-bold ${colorClass}">${val || '-'}</span>`;
+                        } else {
+                            td.innerText = val;
+                        }
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Render Buttons
+            monthContainer.innerHTML = '';
+            
+            // "All" Button
+            const allBtn = document.createElement('button');
+            allBtn.className = "all-agenda-month-btn px-4 py-2 text-xs font-bold uppercase border rounded-xl transition-all duration-200 active:scale-95 bg-indigo-600 text-white border-indigo-500 shadow-neon-indigo";
+            allBtn.innerText = 'All';
+            allBtn.addEventListener('click', () => {
+                document.querySelectorAll('.all-agenda-month-btn').forEach(b => {
+                    b.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-500', 'shadow-neon-indigo');
+                    b.classList.add('bg-slate-800', 'text-slate-400', 'border-slate-700');
+                });
+                allBtn.classList.remove('bg-slate-800', 'text-slate-400', 'border-slate-700');
+                allBtn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-500', 'shadow-neon-indigo');
+                renderTableForMonth('All');
+            });
+            monthContainer.appendChild(allBtn);
+
+            // Month-Year Buttons
+            uniqueMonths.forEach(month => {
+                const btn = document.createElement('button');
+                btn.className = "all-agenda-month-btn px-4 py-2 text-xs font-bold uppercase border rounded-xl transition-all duration-200 active:scale-95 bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700 hover:text-slate-200";
+                btn.innerText = month;
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.all-agenda-month-btn').forEach(b => {
+                        b.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-500', 'shadow-neon-indigo');
+                        b.classList.add('bg-slate-800', 'text-slate-400', 'border-slate-700');
+                    });
+                    btn.classList.remove('bg-slate-800', 'text-slate-400', 'border-slate-700');
+                    btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-500', 'shadow-neon-indigo');
+                    renderTableForMonth(month);
+                });
+                monthContainer.appendChild(btn);
+            });
+
+            renderTableForMonth('All');
         }
 
         // ================= DAILY AGENDA STATUS LOGIC =================
@@ -680,11 +868,8 @@
                 }
 
                 const varianceNum = tgt - act;
-                
                 let varColorClass = "text-emerald-400 font-bold"; 
-                if (varianceNum > 0) {
-                    varColorClass = "text-rose-400 font-bold"; 
-                }
+                if (varianceNum > 0) { varColorClass = "text-rose-400 font-bold"; }
 
                 const varDisplay = varianceNum === 0 ? "0" : varianceNum.toLocaleString();
 
@@ -716,7 +901,7 @@
             let dateToAchieveSum = {};
             let orderedDates = [];
 
-            const dateValidationPattern = /^(\d+[\/\-]\d+|[\d\s]*[a-zA-Z]{3, Brod|[\d\s]*[a-zA-Z]{3,}[\s\d,]*|\d{1,2}\s*-\s*[a-zA-Z]+)$/;
+            const dateValidationPattern = /^(\d+[\/\-]\d+|[\d\s]*[a-zA-Z]{3,}[\s\d,]*|\d{1,2}\s*-\s*[a-zA-Z]+)$/;
             const maxCols = Math.max(row5.length, row6.length);
 
             for (let colIdx = 0; colIdx < maxCols; colIdx++) {
@@ -765,7 +950,6 @@
             let finalTgtData = orderedDates.map(d => dateToTargetSum[d]);
             let finalActData = orderedDates.map(d => dateToAchieveSum[d]);
 
-            // ================= RELATIVE "YESTERDAY" LOGIC =================
             if (finalLabels.length > 0) {
                 const today = new Date();
                 const yesterday = new Date(today);
@@ -870,7 +1054,7 @@
             });
         }
 
-        // ================= PROGRESS STATUS BARS LOGIC (MODERNIZED & ENHANCED) =================
+        // ================= PROGRESS STATUS BARS LOGIC =================
         function renderProgressBar(rawCSVRows) {
             const container = document.getElementById('progress-container');
             container.innerHTML = ''; 
